@@ -1,6 +1,10 @@
 import { registerSchema } from "../config/zod.js"
 import TryCatch from "../middlewares/TryCatch.js";
+import { redisClient } from "../index.js"
+import { User } from "../models/User.js"
 import sanitize from "mongo-sanitize";
+import bcrypt from "bcrypt";
+
 
 export const registerUser = TryCatch(async(req,res)=>{
     const sanitizedBody = sanitize(req.body);
@@ -30,6 +34,24 @@ export const registerUser = TryCatch(async(req,res)=>{
 
     const {name ,email ,password} = validation.data;
 
+    const rateLimitKey = `register-rate-limit:${req.ip}:${email}`;
+
+    if(await redisClient.get(rateLimitKey) ){
+        return res.status(429).json({
+            message:"Too Many Requests, try again later",
+        });
+    }
+
+    const existingUser = await User.findOne({email})
+
+    if(existingUser){
+        return res.status(400).json({
+            message:"User already exists",
+        })
+    }
+        
+    const hashPassword = await bcrypt.hash(password,10);
+        
     res.json({
         name,
         email,
