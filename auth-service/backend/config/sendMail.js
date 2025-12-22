@@ -6,13 +6,13 @@ const sendMail = async({email,subject,html})=>{
         port: 465,
         secure: true,
         auth:{
-            user : "djskasdf",
-            pass:  "asdfasdfa"
+            user : process.env.SMTP_USER,
+            pass:  process.env.SMTP_PASSWORD
         },
     });
 
     await transport.sendMail({
-        from: "dsadsfasd",
+        from: process.env.SMTP_USER,
         to:email,
         subject,
         html,

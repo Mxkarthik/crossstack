@@ -6,7 +6,7 @@ import sanitize from "mongo-sanitize";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import sendMail from "../config/sendMail.js";
-
+import { getVerifyEmailHtml } from "../config/html.js";
 
 export const registerUser = TryCatch(async(req,res)=>{
     const sanitizedBody = sanitize(req.body);
@@ -67,7 +67,7 @@ export const registerUser = TryCatch(async(req,res)=>{
     await redisClient.set(verifyKey,datatoStore, {EX: 300});
 
     const subject = "verify your email for Account creation";
-    const html = ``
+    const html = getVerifyEmailHtml({email, token: verifyToken});
 
     await sendMail({
         email,
@@ -80,3 +80,47 @@ export const registerUser = TryCatch(async(req,res)=>{
        message:"If Your email is valid, a verification link has been sent. It will expire in 5 min",
     });
 });
+
+export const verifyUser = TryCatch(async(req,res)=>{
+    const {token} = req.params;
+
+    if(token)
+    {
+        return res.status(400).json({
+            message:"Verification token is required.",
+        });
+    }
+    const verifyKey = `verify:${token}`;
+
+    const data = await redisClient.get(verifyKey);
+
+    if(!userDataJson){
+        return res.status(400).json({
+            message:"Verification Link is Expired",
+        });
+    }
+
+    await redisClient.del(verifyKey)
+
+    const userData = JSON.parse(userDataJson);
+
+    const existingUser = await User.findOne({email: userData.email})
+
+    if(existingUser){
+        return res.status(400).json({
+            message:"User already exists",
+        })
+    }
+
+    const newUser = await User.create({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+    });
+
+    res.status(201).json({
+        message:"Email verified successfully ! Your account has been created",
+        user: {_id: newUser._id,name: newUser.name , email: newUser.email},
+    });
+});
+
