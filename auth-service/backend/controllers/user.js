@@ -4,6 +4,7 @@ import { redisClient } from "../index.js"
 import { User } from "../models/User.js"
 import sanitize from "mongo-sanitize";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 
 export const registerUser = TryCatch(async(req,res)=>{
@@ -51,7 +52,20 @@ export const registerUser = TryCatch(async(req,res)=>{
     }
         
     const hashPassword = await bcrypt.hash(password,10);
-        
+
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+
+    const verifyKey = `verify:${verifyToken}`
+
+    const datatoStore = JSON.stringify({
+        name,
+        email,
+        password: hashPassword,
+    });
+
+    await redisClient.set(verifyKey,datatoStore, {EX: 300});
+
+
     res.json({
         name,
         email,
