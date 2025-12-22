@@ -84,7 +84,7 @@ export const registerUser = TryCatch(async(req,res)=>{
 export const verifyUser = TryCatch(async(req,res)=>{
     const {token} = req.params;
 
-    if(token)
+    if(!token)
     {
         return res.status(400).json({
             message:"Verification token is required.",
@@ -92,7 +92,7 @@ export const verifyUser = TryCatch(async(req,res)=>{
     }
     const verifyKey = `verify:${token}`;
 
-    const data = await redisClient.get(verifyKey);
+    const userDataJson = await redisClient.get(verifyKey);
 
     if(!userDataJson){
         return res.status(400).json({
@@ -123,4 +123,5 @@ export const verifyUser = TryCatch(async(req,res)=>{
         user: {_id: newUser._id,name: newUser.name , email: newUser.email},
     });
 });
+
 
