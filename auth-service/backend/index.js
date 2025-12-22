@@ -9,6 +9,9 @@ await connectDB();
 
 const app = express();
 
+//middlewares
+app.use(express.json())
+
 //importing routes 
 import userRoutes from './routes/user.js';
 
