@@ -9,6 +9,8 @@ import sendMail from "../config/sendMail.js";
 import { getVerifyEmailHtml } from "../config/html.js";
 import { loginSchema } from "../config/zod.js";
 import { getOtpHtml } from "../config/html.js";
+import { generateToken } from "../config/generateToken.js";
+
 
 
 export const registerUser = TryCatch(async(req,res)=>{
@@ -234,5 +236,12 @@ export const verifyOtp = TryCatch(async(req,res)=>{
     await redisClient.del(otpKey);
 
     let user = await User.findOne({email});
+
+    const tokenData = await generateToken(user._id,res);
+
+    res.status(200).json({
+        message: `Welcome ${user.name}`,
+        user,
+    });
 });
 
