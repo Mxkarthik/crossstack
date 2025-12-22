@@ -6,6 +6,8 @@ import {verifyOtp} from "../controllers/user.js";
 import {myProfile} from "../controllers/user.js";
 import { isAuth } from '../middlewares/isAuth.js';
 import { refreshToken } from '../controllers/user.js';
+import { logoutUser } from '../controllers/user.js';
+
 
 
 const router = express.Router();
@@ -16,4 +18,5 @@ router.post("/login",loginUser);
 router.post("/verify",verifyOtp);
 router.get("/me",isAuth,myProfile);
 router.post("/refresh", refreshToken);
+router.post("/logout",isAuth,logoutUser);
 export default router;

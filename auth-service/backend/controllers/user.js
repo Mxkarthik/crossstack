@@ -275,6 +275,21 @@ export const refreshToken = TryCatch(async(req,res)=>{
 
     res.status(200).json({
         message:"token refreshed",
-    })
+    });
 
+});
+
+export const logoutUser = TryCatch(async(req,res)=>{
+    const userId = req.user._id;
+
+    await revokeRefershToken(userId);
+
+    res.clearCookie("refershToken");
+    res.clearCookie("accessToken");
+
+    await redisClient.del(`user:${userId}`);
+
+    res.json({
+        message:"Logged out successfully",
+    });
 });
