@@ -10,6 +10,8 @@ import { getVerifyEmailHtml } from "../config/html.js";
 import { loginSchema } from "../config/zod.js";
 import { getOtpHtml } from "../config/html.js";
 import { generateToken } from "../config/generateToken.js";
+import { verifyRefreshToken } from "../config/generateToken.js";
+import { generateAccessToken } from "../config/generateToken.js";
 
 
 
@@ -245,3 +247,34 @@ export const verifyOtp = TryCatch(async(req,res)=>{
     });
 });
 
+export const myProfile = TryCatch(async(req,res) => {
+    const user = req.user;
+
+    res.json(user);
+});
+
+export const refreshToken = TryCatch(async(req,res)=>{
+    const refreshToken = req.cookies.refreshToken;
+
+    if(!refreshToken){
+        return res.status(401).json({
+            message:"Invalid refresh token",
+        });
+    }
+
+    const decode = await verifyRefreshToken(refreshToken);
+
+    if(!decode){
+        return res.status(401).json({
+            message:"Invalid refresh token",
+        });
+
+    }
+
+    generateAccessToken(decode.id,res);
+
+    res.status(200).json({
+        message:"token refreshed",
+    })
+
+});
