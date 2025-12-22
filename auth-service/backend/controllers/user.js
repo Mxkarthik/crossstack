@@ -5,6 +5,7 @@ import { User } from "../models/User.js"
 import sanitize from "mongo-sanitize";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import sendMail from "../config/sendMail.js";
 
 
 export const registerUser = TryCatch(async(req,res)=>{
@@ -65,10 +66,17 @@ export const registerUser = TryCatch(async(req,res)=>{
 
     await redisClient.set(verifyKey,datatoStore, {EX: 300});
 
+    const subject = "verify your email for Account creation";
+    const html = ``
 
-    res.json({
-        name,
+    await sendMail({
         email,
-        password,
+        subject,
+        html,
+    })
+
+    await redisClient.set(rateLimitKey,"true" ,{EX:60});
+    res.json({
+       message:"If Your email is valid, a verification link has been sent. It will expire in 5 min",
     });
 });
