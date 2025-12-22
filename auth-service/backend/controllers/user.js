@@ -215,7 +215,7 @@ export const verifyOtp = TryCatch(async(req,res)=>{
         });
     }
 
-    const otpKey = 'otp:${email}';
+    const otpKey = `otp:${email}`;
 
     const storedOtpString = await redisClient.get(otpKey);
 
