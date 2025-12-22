@@ -204,3 +204,35 @@ export const loginUser = TryCatch(async(req,res)=>{
     });
 });
 
+export const verifyOtp = TryCatch(async(req,res)=>{
+    const {email,otp} = req.body;
+
+    if(!email || !otp){
+        return res.status(400).json({
+            message:"Please Provide all details",
+        });
+    }
+
+    const otpKey = 'otp:${email}';
+
+    const storedOtpString = await redisClient.get(otpKey);
+
+    if(!storedOtpString){
+        return res.status(400).json({
+            message:"otp expired",
+        });
+    }
+
+    const storedOtp = JSON.parse(storedOtpString);
+
+    if(storedOtp !== otp) {
+        return res.status(400).json({
+            message: "Invalid Otp",
+        });
+    }
+
+    await redisClient.del(otpKey);
+
+    let user = await User.findOne({email});
+});
+
