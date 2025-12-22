@@ -2,6 +2,7 @@
 import jwt from 'jsonwebtoken'
 import { redisClient } from "../index.js"
 
+
 export const generateToken = async (id,res) => {
     const accessToken = jwt.sign({id}, process.env.JWT_SECRET,{
         expiresIn : "2m",
@@ -62,5 +63,5 @@ export const generateAccessToken = (id ,res) => {
 };
 
 export const revokeRefreshToken = async(userId) => {
-    await redisClient.del(`refresh_token:${userId}`);
+    await redisClient.del(`refresh_token:${userId}`); 
 };   

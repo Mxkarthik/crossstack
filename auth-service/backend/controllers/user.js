@@ -12,6 +12,7 @@ import { getOtpHtml } from "../config/html.js";
 import { generateToken } from "../config/generateToken.js";
 import { verifyRefreshToken } from "../config/generateToken.js";
 import { generateAccessToken } from "../config/generateToken.js";
+import { revokeRefreshToken } from "../config/generateToken.js";
 
 
 
@@ -282,9 +283,9 @@ export const refreshToken = TryCatch(async(req,res)=>{
 export const logoutUser = TryCatch(async(req,res)=>{
     const userId = req.user._id;
 
-    await revokeRefershToken(userId);
+    await revokeRefreshToken(userId);
 
-    res.clearCookie("refershToken");
+    res.clearCookie("refreshToken");
     res.clearCookie("accessToken");
 
     await redisClient.del(`user:${userId}`);
