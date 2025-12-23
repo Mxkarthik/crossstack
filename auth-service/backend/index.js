@@ -4,7 +4,7 @@ import connectDB from './config/db.js';
 import {createClient} from 'redis'
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
-
+import {connectRedis} from './config/redis.js'
 dotenv.config();
 
 await connectDB();
@@ -23,7 +23,7 @@ export const redisClient = createClient({
 redisClient.connect().then(()=>console.log("connected to redis")).catch(console.error);
 
 const app = express();
-
+await connectRedis();
 //middlewares
 app.use(express.json())
 app.use(cookieParser());

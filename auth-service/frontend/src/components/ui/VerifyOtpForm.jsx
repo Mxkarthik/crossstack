@@ -2,11 +2,13 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { server } from "../../main.jsx";
 import { toast } from "react-toastify";
+import { AppData } from "../../context/AppContext.jsx";
 
 const OtpForm = ({ onBack }) => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [btnLoading, setBtnLoading] = useState(false);
   const inputsRef = useRef([]);
+  const {setIsAuth,setUser} = AppData(); 
 
   const handleChange = (value, index) => {
     if (!/^\d?$/.test(value)) return;
@@ -57,7 +59,10 @@ const OtpForm = ({ onBack }) => {
       );
 
       toast.success(data.message);
+      setIsAuth(true);
+      setUser(data.user);
       localStorage.removeItem("email");
+
     } catch (error) {
       toast.error(error?.response?.data?.message || "OTP verification failed");
     } finally {

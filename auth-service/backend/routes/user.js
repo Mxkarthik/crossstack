@@ -5,8 +5,11 @@ import {loginUser} from "../controllers/user.js";
 import {verifyOtp} from "../controllers/user.js";
 import {myProfile} from "../controllers/user.js";
 import { isAuth } from '../middlewares/isAuth.js';
-import { refreshToken } from '../controllers/user.js';
+import { refreshToken } from '../controllers/user.js';  
 import { logoutUser } from '../controllers/user.js';
+import { verifyCSRFToken } from '../config/csrfMiddleware.js';
+import { refreshCSRF } from '../controllers/user.js';
+
 
 
 
@@ -18,5 +21,6 @@ router.post("/login",loginUser);
 router.post("/verify",verifyOtp);
 router.get("/me",isAuth,myProfile);
 router.post("/refresh", refreshToken);
-router.post("/logout",isAuth,logoutUser);
+router.post("/logout",isAuth,verifyCSRFToken,logoutUser);
+router.post("/refresh-csrf",isAuth,refreshCSRF)
 export default router;

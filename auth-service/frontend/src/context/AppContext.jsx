@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../apiintercepter.js";
+import { toast } from "react-toastify";
 
 const AppContext = createContext(null);
 
@@ -8,20 +10,40 @@ export const AppProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate(); // ✅ hook used correctly
+
   const fetchUserData = async () => {
     try {
       const { data } = await api.get("/api/v1/me");
       setUser(data);
       setIsAuth(true);
     } catch (error) {
-      // 401 / 403 is NORMAL → user not logged in
-      if (error.response?.status !== 401 && error.response?.status !== 403) {
+      if (
+        error.response?.status !== 401 &&
+        error.response?.status !== 403
+      ) {
         console.error("Unexpected auth error:", error);
       }
       setUser(null);
       setIsAuth(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Proper logout function
+  const logoutUser = async () => {
+    try {
+      const { data } = await api.post("/api/v1/logout");
+      toast.success(data.message);
+
+      setUser(null);
+      setIsAuth(false);
+
+      navigate("/", { replace: true }); // redirect to Home
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed. Please try again.");
     }
   };
 
@@ -37,6 +59,7 @@ export const AppProvider = ({ children }) => {
         isAuth,
         setIsAuth,
         loading,
+        logoutUser,
       }}
     >
       {children}

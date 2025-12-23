@@ -13,6 +13,9 @@ import { generateToken } from "../config/generateToken.js";
 import { verifyRefreshToken } from "../config/generateToken.js";
 import { generateAccessToken } from "../config/generateToken.js";
 import { revokeRefreshToken } from "../config/generateToken.js";
+import { refreshCSRFToken } from "../config/csrfMiddleware.js";
+import { generateCSRFToken } from "../config/csrfMiddleware.js";
+
 
 
 
@@ -287,6 +290,8 @@ export const logoutUser = TryCatch(async(req,res)=>{
 
     res.clearCookie("refreshToken");
     res.clearCookie("accessToken");
+    res.clearCookie("csrfToken");
+
 
     await redisClient.del(`user:${userId}`);
 
@@ -294,3 +299,14 @@ export const logoutUser = TryCatch(async(req,res)=>{
         message:"Logged out successfully",
     });
 });
+
+export const refreshCSRF = TryCatch(async(req,res)=>{
+    const userId = req.user._id;
+
+    const newCSRFToken = await generateCSRFToken(userId,res);
+
+    res.json({
+        message:"CSRF token refreshed successfully",
+        csrfToken: newCSRFToken,
+    });  
+})
