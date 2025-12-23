@@ -12,7 +12,7 @@ const AuthModal = ({ isOpen, onClose, children }) => {
 
       {/* Glass modal */}
       <div className="
-        relative z-10 w-[400px]
+        relative z-10 w-100
         bg-white/10 border border-white/20
         rounded-2xl p-6
         backdrop-blur-xl text-white

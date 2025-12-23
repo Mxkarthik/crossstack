@@ -18,16 +18,16 @@ export const generateToken = async (id,res) => {
 
     res.cookie("accessToken",accessToken, {
         httpOnly:true,  
-        // secure: true,
-        sameSite: "strict", // the csrf attack chances will be reduced
+        secure: true,
+        sameSite: "none", // the csrf attack chances will be reduced
         maxAge: 1* 60 * 1000, 
     });
 
     res.cookie("refreshToken",refreshToken,{
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly:true,
-        sameSite: "none",
-        // secure: true,
+        sameSite: "strict",
+        secure: true,
     });
 
     return { accessToken , refreshToken };
@@ -56,7 +56,7 @@ export const generateAccessToken = (id ,res) => {
 
     res.cookie("accessToken",accessToken, {
         httpOnly:true,  
-        // secure: true,
+        secure: true,
         sameSite: "strict", // the csrf attack chances will be reduced
         maxAge: 1* 60 * 1000, 
     });
