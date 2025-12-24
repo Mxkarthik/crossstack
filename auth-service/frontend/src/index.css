@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+.input {
+  @apply
+    w-full
+    h-12                 /* 👈 important */
+    px-4                 /* horizontal padding */
+    rounded-xl           /* modern look */
+    bg-white/10
+    border border-white/20
+    text-white
+    text-base            /* 👈 readable text */
+    outline-none
+    placeholder-gray-400
+    focus:border-white/40
+    focus:bg-white/15
+    transition;
+}
