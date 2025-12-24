@@ -4,7 +4,7 @@ import axios from 'axios'
 import { server } from '../../main.jsx'
 import { toast } from 'react-toastify'
 
-const LoginForm = ({ onSuccess }) => {
+const LoginForm = ({ onSignup,onSuccess }) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -118,9 +118,13 @@ const LoginForm = ({ onSuccess }) => {
         {/* Footer */}
         <div className="text-center text-sm text-gray-400">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-white hover:underline">
-            Sign up
-          </Link>
+          <button
+          type="button"
+          onClick={onSignup}
+          className="text-white underline hover:text-white/90"
+        >
+          Sign up
+        </button>
         </div>
       </form>
     </div>

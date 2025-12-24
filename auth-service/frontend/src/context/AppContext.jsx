@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../apiintercepter.js";
 import { toast } from "react-toastify";
 
@@ -10,7 +9,6 @@ export const AppProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate(); // ✅ hook used correctly
 
   const fetchUserData = async () => {
     try {
@@ -33,15 +31,13 @@ export const AppProvider = ({ children }) => {
 
   // ✅ Proper logout function
   const logoutUser = async () => {
-    try {
+  try {
       const { data } = await api.post("/api/v1/logout");
       toast.success(data.message);
 
       setUser(null);
       setIsAuth(false);
-
-      navigate("/", { replace: true }); // redirect to Home
-    } catch (error) {
+    }   catch (error) {
       console.error("Logout error:", error);
       toast.error("Logout failed. Please try again.");
     }
