@@ -1,21 +1,4 @@
-PII - Detector in Git Repository
+# PrivacyLens — A Role-Based PII Analysis & Masking Platform for Git Repositories  
+> Using Regex, NLP & Policy-Based Rules
 
-Structure for Authentication :
-
-PII Optimiser/
-│
-├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ ├── context/
-│ │ └── api/
-│
-├── backend/
-│ ├── controllers/
-│ ├── models/
-│ ├── routes/
-│ ├── middleware/
-│ └── utils/
-│
-└── README.md
+## 
