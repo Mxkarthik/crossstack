@@ -1,86 +1,96 @@
 import crypto from 'crypto'
-import {redisClient} from '../index.js'
+import { User } from '../models/User.js';
+// import {redisClient} from '../index.js' // Removed Redis
 
 
-export const generateCSRFToken = async(userId,res)=>{
+export const generateCSRFToken = async (userId, res) => {
     const csrfToken = crypto.randomBytes(32).toString("hex");
 
-    const csrfKey = `csrf:${userId}`;
+    // await redisClient.setEx(csrfKey,3600,csrfToken); // Removed Redis
 
-    await redisClient.setEx(csrfKey,3600,csrfToken); 
-    res.cookie("csrfToken",csrfToken,{
+    // Update User
+    const user = await User.findById(userId);
+    if (user) {
+        user.csrfToken = csrfToken;
+        await user.save();
+    }
+    res.cookie("csrfToken", csrfToken, {
         httpOnly: false,
-        secure: true,
-        sameSite: "none",
-        maxAge: 60* 60 * 1000,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 60 * 60 * 1000,
     });
 
     return csrfToken;
 };
 
-export const verifyCSRFToken = async(req,res,next)=>{
+export const verifyCSRFToken = async (req, res, next) => {
     try {
-        if(req.method === "GET"){
-            return  next();
+        if (req.method === "GET") {
+            return next();
         }
 
         const userId = req.user?._id;
 
-        if(!userId)
-        {
+        if (!userId) {
             return res.status(401).json({
-            message: "User not authenticated",
+                message: "User not authenticated",
             });
         }
 
         const clientToken = req.headers["x-csrf-token"] || req.headers["x-xsrf-token"] || req.headers["csrf-token"];
 
-        if(!clientToken){
+        if (!clientToken) {
             return res.status(403).json({
-                message: "CSRF token missing",
+                message: "CSRF token missing. Please include the 'X-CSRF-Token' header.",
                 code: "CSRF_TOKEN_MISSING",
             });
-
         }
 
-        const csrfKey = `csrf:${userId}`;
+        // Use req.user if populated by isAuth, otherwise fetch from DB
+        let storedToken = req.user?.csrfToken;
+        if (!storedToken) {
+            const user = await User.findById(userId);
+            storedToken = user ? user.csrfToken : null;
+        }
 
-        const storedToken = await redisClient.get(csrfKey);
-
-        if(!storedToken){
+        if (!storedToken) {
             return res.status(403).json({
-                message: "CSRF token expired.Please try again.",
+                message: "CSRF token expired or not found. Please login again.",
                 code: "CSRF_TOKEN_EXPIRED",
             });
-
         }
 
-        if(storedToken !== clientToken){
+        if (storedToken !== clientToken) {
             return res.status(403).json({
-                message: "Invalid CSRF token expired.Please refresh the page.",
+                message: "Invalid CSRF token. Please refresh your session.",
                 code: "CSRF_TOKEN_INVALID",
             });
         }
 
         next();
-        
+
     }
-    catch (error){
-        console.log("CSRF verification error:",error);
-         return res.status(500).json({
-                message: "CSRF verification failed.",
-                code: "CSRF_VERIFICATION_ERROR",
-            });
+    catch (error) {
+        console.log("CSRF verification error:", error);
+        return res.status(500).json({
+            message: "CSRF verification failed.",
+            code: "CSRF_VERIFICATION_ERROR",
+        });
     }
 };
 
-export const revokeCSRFTOKEN = async(userId)=>{
-    const csrfKey = `csrf:${userId}`;
-    await redisClient.del(csrfKey);
+export const revokeCSRFTOKEN = async (userId) => {
+    const user = await User.findById(userId);
+    if (user) {
+        user.csrfToken = undefined;
+        await user.save();
+    }
+    // await redisClient.del(csrfKey);
 
 };
 
-export const refreshCSRFToken = async(userId,res)=> {
+export const refreshCSRFToken = async (userId, res) => {
     await revokeCSRFTOKEN(userId);
-    return await generateCSRFToken(userId,res);
+    return await generateCSRFToken(userId, res);
 }

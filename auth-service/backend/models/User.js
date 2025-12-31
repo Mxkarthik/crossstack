@@ -5,21 +5,37 @@ const schema = new mongoose.Schema({
         type: String,
         required: true,
     },
-     email: {
+    email: {
         type: String,
         required: true,
         unique: true,
     },
-     password: {
+    password: {
         type: String,
         required: true,
     },
     role: {
-        type : String,
+        type: String,
         default: "user",
+        enum: ["user", "admin"],
     },
+    orgId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Organization",
+        default: null,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: String,
+    verificationTokenExpire: Date,
+    otp: String,
+    otpExpire: Date,
+    refreshToken: String,
+    csrfToken: String,
 },
-    {timestamps : true}
+    { timestamps: true }
 );
 
-export const User = mongoose.model("User",schema);
+export const User = mongoose.model("User", schema);
