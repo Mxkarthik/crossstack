@@ -20,3 +20,13 @@
 
 ## Getting Started
 [Installation steps]
+cd auth-service
+## To Start frontend
+npm install
+cd frontend
+npm run dev
+
+## To Start backend
+cd auth-service 
+cd backend
+npm run dev
